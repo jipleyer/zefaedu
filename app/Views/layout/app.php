@@ -62,9 +62,9 @@
         
         <div>
           <a href="<?= base_url('/'); ?>">
-            <h1 class="text-2xl font-extrabold tracking-wide text-dark">
-              ZE<span class="text-primary">FA</span>
-            </h1>
+            <img src="<?= base_url('images/logo zefaschool.png'); ?>" 
+                alt="ZeFa International Islamic Homeschooling" 
+                class="h-13 md:h-12 w-auto object-contain">
           </a>
         </div>
 
