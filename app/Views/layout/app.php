@@ -6,6 +6,22 @@
 
   <title><?= $title ?? 'ZeFa International Islamic Homeschooling' ?></title>
 
+  <meta name="description" content="<?= $description ?? 'ZeFa International Islamic Homeschooling - Shaping an Impactful, High-Character Generation.' ?>">
+  <meta name="keywords" content="Homeschooling, Islamic Education, ZeFa, International School, Character Building">
+  <meta name="author" content="ZeFa Education Ecosystem">
+  <link rel="canonical" href="<?= current_url(); ?>">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="<?= $title ?? 'ZeFa International Islamic Homeschooling' ?>">
+  <meta property="og:description" content="<?= $description ?? 'Shaping an Impactful, High-Character Generation.' ?>">
+  <meta property="og:image" content="<?= base_url('assets/images/og-thumbnail.jpg') ?>"> <meta property="og:url" content="<?= current_url(); ?>">
+  <meta property="og:site_name" content="ZeFa Education">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="<?= $title ?? 'ZeFa International Islamic Homeschooling' ?>">
+  <meta name="twitter:description" content="<?= $description ?? 'Shaping an Impactful, High-Character Generation.' ?>">
+  <meta name="twitter:image" content="<?= base_url('assets/images/og-thumbnail.jpg') ?>">
+
   <script src="https://cdn.tailwindcss.com"></script>
 
   <script>
