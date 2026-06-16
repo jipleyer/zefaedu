@@ -5,21 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <title><?= $title ?? 'ZeFa International Islamic Homeschooling' ?></title>
+  <link rel="icon" type="image/png" href="<?= base_url('favicon.png'); ?>">
 
-  <meta name="description" content="<?= $description ?? 'ZeFa International Islamic Homeschooling - Shaping an Impactful, High-Character Generation.' ?>">
-  <meta name="keywords" content="Homeschooling, Islamic Education, ZeFa, International School, Character Building">
+  <meta property="og:title" content="<?= $title ?? 'ZeFa Education' ?>">
+  <meta property="og:description" content="<?= $description ?? 'Baca artikel selengkapnya di ZeFa Education.' ?>">
+    
+  <?php if(isset($post['thumbnail'])): ?>
+       <meta property="og:image" content="<?= base_url('uploads/blog/' . $post['thumbnail']) ?>">
+  <?php endif; ?>
+    
+  <meta property="og:url" content="<?= current_url() ?>">
+
+
+  <meta name="description" content="<?= $description ?? 'program online homeschooling Islam berakselerasi 3 tahun (MMT) yang berfokus mutlak pada penguasaan fundamental agama (Mutuun), penalaran matematika, kefasihan bahasa global, dan keahlian teknologi masa depan.' ?>">
+  <meta name="keywords" content="International Islamic Online Homeschooling, Akselerasi MMT 3 Tahun,Islamic Education, ZeFa, Character Building">
   <meta name="author" content="ZeFa Education Ecosystem">
   <link rel="canonical" href="<?= current_url(); ?>">
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="<?= $title ?? 'ZeFa International Islamic Homeschooling' ?>">
-  <meta property="og:description" content="<?= $description ?? 'Shaping an Impactful, High-Character Generation.' ?>">
+  <meta property="og:description" content="<?= $description ?? 'program online homeschooling Islam berakselerasi 3 tahun (MMT) yang berfokus mutlak pada penguasaan fundamental agama (Mutuun), penalaran matematika, kefasihan bahasa global, dan keahlian teknologi masa depan.' ?>">
   <meta property="og:image" content="<?= base_url('assets/images/og-thumbnail.jpg') ?>"> <meta property="og:url" content="<?= current_url(); ?>">
   <meta property="og:site_name" content="ZeFa Education">
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="<?= $title ?? 'ZeFa International Islamic Homeschooling' ?>">
-  <meta name="twitter:description" content="<?= $description ?? 'Shaping an Impactful, High-Character Generation.' ?>">
+  <meta name="twitter:description" content="<?= $description ?? 'program online homeschooling Islam berakselerasi 3 tahun (MMT) yang berfokus mutlak pada penguasaan fundamental agama (Mutuun), penalaran matematika, kefasihan bahasa global, dan keahlian teknologi masa depan.' ?>">
   <meta name="twitter:image" content="<?= base_url('assets/images/og-thumbnail.jpg') ?>">
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -29,7 +40,7 @@
       theme: {
         extend: {
           colors: {
-            primary: '#ff3115',
+            primary: '#c80000',
             dark: '#111827',
             soft: '#f8fafc',
             line: '#e5e7eb'

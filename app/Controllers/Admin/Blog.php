@@ -14,38 +14,25 @@ class Blog extends BaseController
         $this->blogModel = new BlogModel();
     }
 
-    // 1. Menampilkan daftar semua blog
     public function index()
     {
         $data['blogs'] = $this->blogModel->orderBy('created_at', 'DESC')->findAll();
         return view('admin/blog_index', $data);
     }
 
-    public function show($slug)
-    {
-        $model = new \App\Models\BlogModel();
-        $data['blog'] = $model->where('slug', $slug)->first();
-
-        if (!$data['blog']) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
-        }
-
-        return view('blog_show', $data);
-    }
-
-    // 2. Menampilkan form tambah blog
     public function create()
     {
-        return view('admin/blog_edit');
+        $db = \Config\Database::connect();
+        $data['allTags'] = $db->table('tags')->get()->getResultArray();
+        $data['currentTags'] = [];
+        return view('admin/blog_edit', $data);
     }
 
-    // 3. Menyimpan data baru
     public function save()
     {
         $file = $this->request->getFile('thumbnail');
         $thumbnailName = 'default.jpg';
 
-        // Proses upload & konversi jika ada file yang dikirim
         if ($file && $file->isValid() && !$file->hasMoved()) {
             $thumbnailName = $this->processAndSaveImage($file);
         }
@@ -54,92 +41,134 @@ class Blog extends BaseController
             'judul'     => $this->request->getPost('judul'),
             'slug'      => url_title($this->request->getPost('judul'), '-', true),
             'konten'    => $this->request->getPost('isi'),
-            'thumbnail' => $thumbnailName
+            'excerpt'   => $this->request->getPost('excerpt'),
+            'thumbnail' => $thumbnailName,
+            'created_at'=> date('Y-m-d H:i:s')
         ];
 
         $this->blogModel->insert($data);
+        $blogId = $this->blogModel->getInsertID();
+
+        // Panggil fungsi sinkronisasi tag
+        $this->syncTags($blogId, $this->request->getPost('tags'));
+
         return redirect()->to('/portal/blog')->with('success', 'Artikel berhasil diterbitkan!');
     }
 
-    // Fungsi pembantu untuk resize dan convert ke WebP
+    public function update($id)
+    {
+        $blogLama = $this->blogModel->find($id);
+        
+        $data = [
+            'judul'   => $this->request->getPost('judul'),
+            'konten'  => $this->request->getPost('isi'),
+            'excerpt' => $this->request->getPost('excerpt'),
+            'slug'    => url_title($this->request->getPost('judul'), '-', true),
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+
+        $file = $this->request->getFile('thumbnail');
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            if ($blogLama['thumbnail'] !== 'default.jpg' && file_exists('uploads/blog/' . $blogLama['thumbnail'])) {
+                unlink('uploads/blog/' . $blogLama['thumbnail']);
+            }
+            $data['thumbnail'] = $this->processAndSaveImage($file);
+        }
+
+        $this->blogModel->update($id, $data);
+
+        // Panggil fungsi sinkronisasi tag (otomatis menghapus yang lama dan memasang yang baru)
+        $this->syncTags($id, $this->request->getPost('tags'));
+        
+        return redirect()->to('/portal/blog')->with('success', 'Artikel berhasil diupdate!');
+    }
+
+    /**
+     * Fungsi untuk sinkronisasi tag (Create if not exist & Sync)
+     */
+    private function syncTags($blogId, $tagsInput)
+    {
+        $db = \Config\Database::connect();
+        
+        // 1. Hapus relasi lama
+        $db->table('blog_tags')->where('blog_id', $blogId)->delete();
+
+        // 2. Jika input kosong, berhenti di sini
+        if (empty(trim($tagsInput))) return;
+
+        // 3. Pecah string berdasarkan koma
+        $tagsArray = array_map('trim', explode(',', $tagsInput));
+
+        foreach ($tagsArray as $tagName) {
+            if (empty($tagName)) continue;
+
+            $slug = url_title($tagName, '-', true);
+
+            // 4. Cari tag, jika tidak ada, buat baru
+            $tag = $db->table('tags')->where('slug', $slug)->get()->getRowArray();
+
+            if (!$tag) {
+                $db->table('tags')->insert(['nama_tag' => $tagName, 'slug' => $slug]);
+                $tagId = $db->insertID();
+            } else {
+                $tagId = $tag['id'];
+            }
+
+            // 5. Masukkan ke tabel pivot
+            $db->table('blog_tags')->insert(['blog_id' => $blogId, 'tag_id' => $tagId]);
+        }
+    }
+
+    public function edit($id)
+    {
+        $data['blog'] = $this->blogModel->find($id);
+        
+        if (!$data['blog']) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $db = \Config\Database::connect();
+        
+        // Kita ambil nama-nama tag yang terhubung dengan blog ini
+        $data['blogTags'] = $db->table('tags')
+                            ->join('blog_tags', 'tags.id = blog_tags.tag_id')
+                            ->where('blog_tags.blog_id', $id)
+                            ->get()
+                            ->getResultArray();
+        
+        return view('admin/blog_edit', $data);
+    }
+
     private function processAndSaveImage($file)
     {
         $newName = $file->getRandomName();
         $fileName = pathinfo($newName, PATHINFO_FILENAME);
         
-        // Pastikan folder tujuan ada
         if (!is_dir('uploads/blog')) {
             mkdir('uploads/blog', 0777, true);
         }
         
-        $image = \Config\Services::image()
+        \Config\Services::image()
             ->withFile($file)
-            ->resize(1200, 800, true, 'width') // Resize lebar max 1200px
-            ->convert(IMAGETYPE_WEBP)          // Konversi ke WebP
-            ->save('uploads/blog/' . $fileName . '.webp', 80); // Kualitas 80%
+            ->resize(1200, 800, true, 'width')
+            ->convert(IMAGETYPE_WEBP)
+            ->save('uploads/blog/' . $fileName . '.webp', 80);
 
         return $fileName . '.webp';
     }
-    
 
-    // 4. Menampilkan form edit
-    public function edit($id)
-    {
-        $data['blog'] = $this->blogModel->find($id);
-        return view('admin/blog_edit', $data);
-    }
 
-    // 5. Update data
-    public function update($id)
-    {
-        // Ambil data lama dulu
-        $blogLama = $this->blogModel->find($id);
-        
-        // Siapkan data dasar
-        $data = [
-            'judul'  => $this->request->getPost('judul'),
-            'konten' => $this->request->getPost('isi'),
-            'slug'   => url_title($this->request->getPost('judul'), '-', true)
-        ];
-
-        // Cek apakah ada file yang diupload
-        $file = $this->request->getFile('thumbnail');
-        
-        // isValid() mengecek apakah file ada dan tidak error saat diupload
-        if ($file && $file->isValid() && !$file->hasMoved()) {
-            
-            // 1. Hapus gambar lama jika bukan default.jpg
-            if ($blogLama['thumbnail'] !== 'default.jpg' && file_exists('uploads/blog/' . $blogLama['thumbnail'])) {
-                unlink('uploads/blog/' . $blogLama['thumbnail']);
-            }
-            
-            // 2. Proses upload gambar baru (menggunakan fungsi yang kita buat tadi)
-            $data['thumbnail'] = $this->processAndSaveImage($file);
-        }
-
-        // 3. Update ke database
-        $this->blogModel->update($id, $data);
-        
-        return redirect()->to('/portal/blog')->with('success', 'Artikel berhasil diupdate!');
-    }
-
-    // 6. Hapus data
     public function delete($id)
     {
-        // 1. Ambil data blog untuk mengetahui nama file gambarnya
         $blog = $this->blogModel->find($id);
-
         if ($blog) {
-            // 2. Cek apakah ada file gambar dan bukan gambar default
             if ($blog['thumbnail'] !== 'default.jpg' && file_exists('uploads/blog/' . $blog['thumbnail'])) {
-                // 3. Hapus file fisik dari storage
                 unlink('uploads/blog/' . $blog['thumbnail']);
             }
-
-            // 4. Baru hapus record di database
+            $db = \Config\Database::connect();
+            $db->table('blog_tags')->where('blog_id', $id)->delete();
             $this->blogModel->delete($id);
         }
-
-        return redirect()->to('/portal/blog')->with('success', 'Artikel dan gambar berhasil dihapus.');
+        return redirect()->to('/portal/blog')->with('success', 'Artikel berhasil dihapus.');
     }
 }

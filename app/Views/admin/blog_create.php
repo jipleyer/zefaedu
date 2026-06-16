@@ -30,6 +30,14 @@
             <textarea id="editor" name="isi" class="w-full"><?= $blog['konten'] ?? ''; ?></textarea>
         </div>
 
+        <div class="space-y-2">
+            <label class="font-semibold text-gray-700">Tags (pisahkan dengan koma)</label>
+            <input type="text" name="tags" 
+                value="<?= isset($blogTags) ? implode(', ', array_column($blogTags, 'nama_tag')) : '' ?>" 
+                class="w-full border p-3 rounded-lg" 
+                placeholder="contoh: pendidikan, homeschooling, islami">
+        </div>
+
         <button type="submit" class="bg-primary text-white px-8 py-3 font-bold rounded hover:bg-red-700 transition">
             <?= isset($blog) ? 'Update Artikel' : 'Simpan Artikel'; ?>
         </button>
