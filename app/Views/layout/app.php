@@ -145,6 +145,7 @@
       <p class="mb-2 font-semibold text-white">ZEFA INTERNATIONAL ISLAMIC HOMESCHOOLING</p>
       <p class="mb-4">Shaping an Impactful, High-Character Generation.</p>
       <p>© 2026 ZeFa Education Ecosystem. All Rights Reserved.</p>
+      <p>developed by <a href="https://yabegitu.com" class="text-primary hover:underline">yabeitu.com</a></p>
     </div>
   </footer>
 

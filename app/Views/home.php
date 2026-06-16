@@ -2,10 +2,19 @@
 
 <?= $this->section('content'); ?>
 
-  <section id="home" class="bg-soft border-b border-line">
-    <div class="max-w-7xl mx-auto px-6 py-14 lg:py-24">
-      <div class="grid lg:grid-cols-2 gap-14 lg:gap-20 items-center">
-        <div class="order-2 lg:order-1">
+  <section id="home" class="relative w-full overflow-hidden bg-soft">
+  
+    <div class="absolute inset-0 w-full h-full">
+      <img 
+        src="/images/zefa_homeschooling.png" 
+        alt="Pelajar ZeFa" 
+        class="w-full h-full object-cover [mask-image:linear-gradient(to_right,transparent_20%,black_100%)]" 
+      />
+    </div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-6 py-20 lg:py-32">
+      <div class="grid lg:grid-cols-2 gap-14 items-center">
+        <div>
           <div class="inline-block border-l-4 border-primary pl-4 mb-8">
             <p class="uppercase tracking-[3px] text-sm font-semibold text-primary">Zero Compromise Education</p>
           </div>
@@ -13,19 +22,14 @@
             Aqidah yang tak tergoyahkan.<br>
             <span class="text-primary">Keunggulan akademik global.</span>
           </h2>
-          <p class="text-slate-600 leading-relaxed mb-10 text-lg">
-            ZeFa International Islamic Homeschooling hadir sebagai <em>"Jalan Ketiga" (The Third Way)</em> bagi keluarga Muslim visioner. Kami menolak kompromi antara mempertahankan akidah yang kokoh dan mengejar keunggulan kompetitif di level global.
+          <p class="text-slate-700 leading-relaxed mb-10 text-lg font-medium">
+            ZeFa International Islamic Homeschooling hadir sebagai <em>"Jalan Ketiga" (The Third Way)</em> bagi keluarga Muslim visioner.
           </p>
           <a href="#contact" class="inline-block bg-dark hover:bg-slate-800 transition text-white px-8 py-4 font-semibold text-sm">
             Initiate Partnership
           </a>
         </div>
-        <div class="order-1 lg:order-2">
-          <div class="border border-line bg-white p-4 shadow-sm relative">
-            <img src="/images/zefa_school.png" class="w-full h-[320px] lg:h-[500px] object-cover" alt="Pelajar ZeFa" />
-          </div>
         </div>
-      </div>
     </div>
   </section>
 
